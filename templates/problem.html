@@ -3,7 +3,8 @@
 {% block scripts %}
 <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.0/es5/tex-svg.js"></script>
-
+<script type="text/javascript" src="https://nturley.github.io/netlistsvg/elk.bundled.js"></script>
+<script type="text/javascript" src="https://nturley.github.io/netlistsvg/built/netlistsvg.bundle.js"></script>
 <script>
 
 let pasteContent = [];
@@ -78,6 +79,27 @@ function compile(buttonId) {
               rollbackLink.onclick = function() { rollback(result.submissionId); }
               rollbackLink.innerText = result.timestamp;
               document.getElementById("rollback").prepend(rollbackLink);
+
+              if (result.netlist != "") {
+                netlistsvg.render(netlistsvg.digitalSkin, JSON.parse(result.netlist),
+                  function(err, result) {
+                    console.log(err);
+                    console.log(result)
+                    result = result.replace("<svg ", "<svg id=\"netlistsvg\" preserveAspectRatio=\"xMidYMid meet\"");
+                    document.getElementById("netlistimg_div").innerHTML = result;
+                    document.getElementById("svgencl").style.display = "inline";
+
+                    var svg = document.getElementById("netlistsvg");
+                    var scale = 2;
+                    var bbox = svg.getBBox();
+                    // https://stackoverflow.com/a/14363879
+                    // https://stackoverflow.com/a/40762799
+                    svg.setAttribute("width", "100%");
+                    svg.setAttribute("height", "70%");
+                    svg.setAttribute("viewBox", `0 0 ${bbox.width + bbox.x + 20} ${bbox.height + bbox.y + 20}`);
+                    svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+                });
+              }
           }
       };
       changetext = document.getElementById("changetype").value;
@@ -117,7 +139,7 @@ function compile(buttonId) {
 &#9654;
 </span>
 {% elif s['status'] == 'pass' %}
-&#9989; 
+&#9989;
 {% endif %}
 </a>
 {% endfor %}
@@ -155,5 +177,11 @@ function compile(buttonId) {
 <h2 id="buildlabel">Compiler/test output:</h2>
 <span id="buildlog">
 </span>
+
+<div id="svgencl" style="display: none !important">
+    <h2 id="netlistlabel">Block diagram:</h2>
+    <div id="netlistimg_div" width="100%" height="200px">
+    </div>
+</div>
 
 {% endblock %}

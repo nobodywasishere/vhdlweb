@@ -99,5 +99,12 @@ def runtest(wdir, problem):
     else:
       status = "buildfail"
 
-    return {"status":status, "buildOutput":output}
+    netlist = ""
+    if 'schematic' in problem_config and problem_config['schematic'] == "yes":
+      try:
+        with open(wdir + "svg.json", "r") as netlist_file:
+          netlist = netlist_file.read()
+      except Exception as e:
+          current_app.logger.error("server error with netlist:\n" + str(e))
 
+    return {"status":status, "buildOutput":output, "netlist":netlist}

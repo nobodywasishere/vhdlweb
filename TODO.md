@@ -2,7 +2,8 @@
 # Planned improvements for 2021
 - [ ] Add quick VHDL reference popup available from any problem page
 
-- [ ] Get VHDL -> netlistsvg working; add a flag to enable schematic generation for most problems
+- [x] Get VHDL -> netlistsvg working
+- [ ] Add a flag to enable schematic generation for most problems
 - [ ] Add "write code to create this circuit" problems
 
 - [ ] Allow users to download the VCD (to display/analyze locally with gtkwave)
