@@ -10,11 +10,13 @@
   Log when students download the VCD for research purposes
   The VCDs can get *really* big, so
 
+- [ ] Add copyright notice for netlistsvg and elkjs on website
+
 # Research metrics/improvements
 - [ ] Add "what's this" tooltip(s) to buttons to explain what the various options mean
 
 # Security/robustness
-- [ ] Implement docker containers for sandboxing?
+- [x] Implement docker containers for sandboxing
 - [ ] Sanitize the input.  VHDL file operations shouldn't be allowed, for obvious security reasons
 - [ ] Check that the python code actually times out after 5s if the simulation doesn't stop on its own, and return some helpful message to the user.
 

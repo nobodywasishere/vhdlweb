@@ -13,6 +13,8 @@ Make sure you have an appropriate `deploy.config` and `debug.config` before runn
 Useful resources:
 * https://www.vultr.com/docs/how-to-setup-gunicorn-to-serve-python-web-applications
 
+Utilizes [netlistsvg](https://github.com/nturley/netlistsvg) licensed under MIT, and [elkjs](https://github.com/kieler/elkjs) licensed under EPL v1.0. Both are included locally under `/static/js`.
+
 ## Docker
 
 Pull the latest GHDL docker image using:
