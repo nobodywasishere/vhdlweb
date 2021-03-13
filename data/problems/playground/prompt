@@ -1,0 +1,3 @@
+This is a playground to mess around with VHDL! Feel free to write whatever code you want here. The entity `top` will be used for running a testbench and generating a block diagram.
+
+You can even have a testbench emit `TEST PASSED` if you want to take advantage of the built in testing functionality of VHDLweb (otherwise it will say your test failed).

@@ -1,0 +1,30 @@
+library IEEE;
+use IEEE.std_logic_1164.all;
+
+entity top is
+    port(
+        a : in std_logic;
+        b : in std_logic;
+        c : in std_logic;
+        y : out std_logic
+    );
+end top;
+
+architecture synth of top is
+
+begin
+
+    -- Your code here
+
+    y <= a and b and c;
+
+    process is
+    begin
+
+        report "TEST PASSED";
+        
+        wait;
+
+    end process;
+
+end;
