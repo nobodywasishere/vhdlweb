@@ -6,13 +6,19 @@ TOP=top
 all: run netlist
 
 run:
+	>&2 echo
+	>&2 echo "~~~ RUNNING TESTBENCH ~~~"
+	>&2 echo
 	@$(GHDL) -a $(FLAGS) submission.vhd
 	@$(GHDL) -e $(FLAGS) $(TOP)
 	@$(GHDL) -r $(FLAGS) $(TOP) --stop-time=1us
 
 netlist:
+	>&2 echo
+	>&2 echo "~~~ GENERATING SVG ~~~"
+	>&2 echo
 	-rm work-obj08.cf > /dev/null
-	$(GHDL) -a $(FLAGS) submission.vhd
-	yosys -m $(GHDL) -p "ghdl $(FLAGS) $(TOP); prep -top $(TOP); write_json -compat-int svg.json" > /dev/null
-	sed -i 's/"top": "[0]{31}1"/"top": 1/g' svg.json
-	sed -i 's/"z"/"x"/g' svg.json
+	-$(GHDL) -a $(FLAGS) submission.vhd
+	-yosys -m $(GHDL) -p "ghdl $(FLAGS) $(TOP); prep -top $(TOP); write_json -compat-int svg.json" > /dev/null
+	-sed -i 's/"top": "[0]{31}1"/"top": 1/g' svg.json > /dev/null 2&>1
+	-sed -i 's/"z"/"x"/g' svg.json > /dev/null 2&>1

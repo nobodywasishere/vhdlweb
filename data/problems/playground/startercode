@@ -18,13 +18,9 @@ begin
 
     y <= a and b and c;
 
-    process is
+    process (a)
     begin
-
         report "TEST PASSED";
-        
-        wait;
-
     end process;
 
 end;
