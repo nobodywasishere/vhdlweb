@@ -10,6 +10,7 @@
 let pasteContent = [];
 let startTime = Date.now(); // Time when tab was focused
 let elapsedTime = 0; // Cumulative time
+let skinFile = "/static/skins/multimux.svg"; // skin file for netlistsvg
 
 function addPaste(content) {
   pasteContent.push(content.text);
@@ -81,25 +82,27 @@ function compile(buttonId) {
               document.getElementById("rollback").prepend(rollbackLink);
 
               if (result.netlist != "") {
-                netlistsvg.render(netlistsvg.digitalSkin, JSON.parse(result.netlist),
-                  function(err, result) {
-                    console.log(err);
-                    console.log(result)
-                    result = result.replace("<svg ", "<svg id=\"netlistsvg\" preserveAspectRatio=\"xMidYMid meet\"");
-                    document.getElementById("netlistimg_div").innerHTML = result;
-                    document.getElementById("svgencl").style.display = "inline";
-
-                    var svg = document.getElementById("netlistsvg");
-                    var scale = 2;
-                    var bbox = svg.getBBox();
-                    // https://stackoverflow.com/a/14363879
-                    // https://stackoverflow.com/a/40762799
-                    svg.setAttribute("width", "100%");
-                    svg.setAttribute("height", "70%");
-                    svg.setAttribute("viewBox", `0 0 ${bbox.width + bbox.x + 20} ${bbox.height + bbox.y + 20}`);
-                    svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
-                });
+                // https://forums.tumult.com/t/importing-content-from-a-text-file-txt/2004
+                var netlistRqst = new XMLHttpRequest();
+                netlistRqst.open("GET", skinFile, true);
+                netlistRqst.onreadystatechange = function() {
+                  if (netlistRqst.readyState === 4) {
+                    if (netlistRqst.status === 200) {
+                      var netlist_skin = netlistRqst.responseText;
+                        if (netlist_skin) {
+                          netlistsvg.render(netlist_skin, JSON.parse(result.netlist),
+                          function(err, result) {
+                            console.log(err);
+                            console.log(result);
+                            document.getElementById("svgencl").style.display = "inline";
+                            document.getElementById("netlistsvgarea").src = 'data:image/svg+xml,' + encodeURIComponent(result);
+                          });
+                        }
+                      }
+                    }
+                  }
               }
+              netlistRqst.send(null);
           }
       };
       changetext = document.getElementById("changetype").value;
@@ -180,8 +183,8 @@ function compile(buttonId) {
 
 <div id="svgencl" style="display: none !important">
     <h2 id="netlistlabel">Block diagram:</h2>
-    <div id="netlistimg_div" width="100%" height="200px">
-    </div>
+    <img id=netlistsvgarea width="100%">
+    </img>
 </div>
 
 {% endblock %}

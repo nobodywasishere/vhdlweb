@@ -36,11 +36,7 @@ var Cell = /** @class */ (function () {
         return new Cell(name, '$_outputExt_', [new Port_1.Port('A', yPort.bits)], [], {});
     };
     Cell.fromYosysCell = function (yCell, name) {
-        if (['$pmux', '$mux', '$_MUX_', 'mux'].includes(yCell.type)) {
-            if ('WIDTH' in yCell.parameters && yCell.parameters.WIDTH > 1) {
-                yCell.type = '$multimux';
-            }
-        }
+        this.setAlternateCellType(yCell);
         var template = Skin_1.default.findSkinType(yCell.type);
         var templateInputPids = Skin_1.default.getInputPids(template);
         var templateOutputPids = Skin_1.default.getOutputPids(template);
@@ -92,32 +88,42 @@ var Cell = /** @class */ (function () {
         });
         return new Cell('$split$' + source, '$_split_', inPorts, splitOutPorts, {});
     };
+    // Set cells to alternate types/tags based on their parameters
+    Cell.setAlternateCellType = function (yCell) {
+        // if its a mux that has a bus width greater than 1
+        // turn into a multimux
+        if (['$pmux', '$mux', '$_MUX_', 'mux'].includes(yCell.type)) {
+            if ('WIDTH' in yCell.parameters && yCell.parameters.WIDTH > 1) {
+                yCell.type = '$multimux';
+            }
+        }
+    };
     Object.defineProperty(Cell.prototype, "Type", {
         get: function () {
             return this.type;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(Cell.prototype, "Key", {
         get: function () {
             return this.key;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(Cell.prototype, "InputPorts", {
         get: function () {
             return this.inputPorts;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(Cell.prototype, "OutputPorts", {
         get: function () {
             return this.outputPorts;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Cell.prototype.maxOutVal = function (atLeast) {
@@ -248,7 +254,8 @@ var Cell = /** @class */ (function () {
         var tempclone = clone(template);
         for (var _i = 0, _a = cell.labels; _i < _a.length; _i++) {
             var label = _a[_i];
-            var attrName = label.id.split('.')[2];
+            var labelIDSplit = label.id.split('.');
+            var attrName = labelIDSplit[labelIDSplit.length - 1];
             setTextAttribute(tempclone, attrName, label.text);
         }
         for (var i = 2; i < tempclone.length; i++) {
@@ -423,6 +430,7 @@ function getBits(signals, indicesString) {
 },{"./FlatModule":2,"./Port":3,"./Skin":4,"./YosysModel":5,"clone":57,"lodash":68,"onml":69}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.removeDups = exports.addToDefaultDict = exports.arrayToBitstring = exports.FlatModule = void 0;
 var Skin_1 = require("./Skin");
 var Cell_1 = require("./Cell");
 var _ = require("lodash");
@@ -613,6 +621,7 @@ exports.removeDups = removeDups;
 },{"./Cell":1,"./Skin":4,"lodash":68}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Port = void 0;
 var Cell_1 = require("./Cell");
 var _ = require("lodash");
 var Port = /** @class */ (function () {
@@ -624,7 +633,7 @@ var Port = /** @class */ (function () {
         get: function () {
             return this.key;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Port.prototype.keyIn = function (pids) {
@@ -745,6 +754,7 @@ exports.Port = Port;
 },{"./Cell":1,"lodash":68}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Skin = void 0;
 var onml = require("onml");
 var _ = require("lodash");
 var Skin;
@@ -981,6 +991,49 @@ function drawModule(g, module) {
             return bends.concat(line);
         });
     });
+    var labels;
+    for (var index in g.edges) {
+        if (g.edges.hasOwnProperty(index)) {
+            var e = g.edges[index];
+            var netId = elkGraph_1.ElkModel.wireNameLookup[e.id];
+            var numWires = netId.split(',').length - 2;
+            var netName = 'net_' + netId.slice(1, netId.length - 1) +
+                ' width_' + numWires +
+                ' busLabel_' + numWires;
+            if (e.labels !== undefined &&
+                e.labels[0] !== undefined &&
+                e.labels[0].text !== undefined) {
+                var label = [
+                    ['rect',
+                        {
+                            x: e.labels[0].x + 1,
+                            y: e.labels[0].y - 1,
+                            width: (e.labels[0].text.length + 2) * 6 - 2,
+                            height: 9,
+                            class: netName,
+                            style: 'fill: white; stroke: none',
+                        },
+                    ], ['text',
+                        {
+                            x: e.labels[0].x,
+                            y: e.labels[0].y + 7,
+                            class: netName,
+                        },
+                        '/' + e.labels[0].text + '/',
+                    ],
+                ];
+                if (labels !== undefined) {
+                    labels = labels.concat(label);
+                }
+                else {
+                    labels = label;
+                }
+            }
+        }
+    }
+    if (labels !== undefined && labels.length > 0) {
+        lines = lines.concat(labels);
+    }
     var svgAttrs = Skin_1.default.skin[1];
     svgAttrs.width = g.width.toString();
     svgAttrs.height = g.height.toString();
@@ -1125,6 +1178,7 @@ exports.removeDummyEdges = removeDummyEdges;
 },{"./Skin":4,"./elkGraph":7,"lodash":68,"onml":69}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.buildElkGraph = exports.ElkModel = void 0;
 var _ = require("lodash");
 var ElkModel;
 (function (ElkModel) {
@@ -1139,17 +1193,18 @@ function buildElkGraph(module) {
     ElkModel.edgeIndex = 0;
     ElkModel.dummyNum = 0;
     var edges = _.flatMap(module.wires, function (w) {
+        var numWires = w.netName.split(',').length - 2;
         // at least one driver and at least one rider and no laterals
         if (w.drivers.length > 0 && w.riders.length > 0 && w.laterals.length === 0) {
             var ret = [];
-            route(w.drivers, w.riders, ret);
+            route(w.drivers, w.riders, ret, numWires);
             return ret;
             // at least one driver or rider and at least one lateral
         }
         else if (w.drivers.concat(w.riders).length > 0 && w.laterals.length > 0) {
             var ret = [];
-            route(w.drivers, w.laterals, ret);
-            route(w.laterals, w.riders, ret);
+            route(w.drivers, w.laterals, ret, numWires);
+            route(w.laterals, w.riders, ret, numWires);
             return ret;
             // at least two drivers and no riders
         }
@@ -1239,22 +1294,41 @@ function addDummy(children) {
     children.push(child);
     return dummyId;
 }
-function route(sourcePorts, targetPorts, edges) {
+function route(sourcePorts, targetPorts, edges, numWires) {
     var newEdges = (_.flatMap(sourcePorts, function (sourcePort) {
         var sourceParentKey = sourcePort.parentNode.key;
         var sourceKey = sourceParentKey + '.' + sourcePort.key;
+        var edgeLabel;
+        if (numWires > 1) {
+            edgeLabel = [{
+                    id: '',
+                    text: String(numWires),
+                    width: 4,
+                    height: 6,
+                    x: 0,
+                    y: 0,
+                    layoutOptions: {
+                        'org.eclipse.elk.edgeLabels.inline': true,
+                    },
+                }];
+        }
         return targetPorts.map(function (targetPort) {
             var targetParentKey = targetPort.parentNode.key;
             var targetKey = targetParentKey + '.' + targetPort.key;
             var id = 'e' + ElkModel.edgeIndex;
             var edge = {
                 id: id,
+                labels: edgeLabel,
                 sources: [sourceKey],
                 targets: [targetKey],
             };
             ElkModel.wireNameLookup[id] = targetPort.wire.netName;
             if (sourcePort.parentNode.type !== '$dff') {
-                edge.layoutOptions = { 'org.eclipse.elk.layered.priority.direction': 10 };
+                edge.layoutOptions = { 'org.eclipse.elk.layered.priority.direction': 10,
+                    'org.eclipse.elk.edge.thickness': (numWires > 1 ? 2 : 1) };
+            }
+            else {
+                edge.layoutOptions = { 'org.eclipse.elk.edge.thickness': (numWires > 1 ? 2 : 1) };
             }
             ElkModel.edgeIndex += 1;
             return edge;
@@ -1267,6 +1341,7 @@ function route(sourcePorts, targetPorts, edges) {
 (function (global){(function (){
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.render = exports.dumpLayout = void 0;
 var ELK = (typeof window !== "undefined" ? window['ELK'] : typeof global !== "undefined" ? global['ELK'] : null);
 var onml = require("onml");
 var FlatModule_1 = require("./FlatModule");
