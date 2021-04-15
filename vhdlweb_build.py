@@ -23,7 +23,7 @@ def safe_run(command, timeout=3, **kwargs):
       return("Program timed out after {} seconds. Output up to this point was:\n\n"\
              .format(timeout).encode('utf-8') + output[0:5000])
 
-def findpath(workdir, student, problemId):
+def findpath(workdir, student):
   """ Create a unique temporary working directory corresponding to this student
       and problem, and return the path to it. """
   # Check that the student directory exists and create it if necessary
@@ -34,7 +34,7 @@ def findpath(workdir, student, problemId):
 
   # Check that the problem subdirectory exists and create it if necessary
   # This will happen the first time a user attempts a problem
-  basepath = studentpath + '/' + problemId
+  basepath = studentpath + '/'
   if not os.path.isdir(basepath):
     os.mkdir(basepath)
 
@@ -53,7 +53,7 @@ def findpath(workdir, student, problemId):
   os.mkdir(wdir)
   return wdir + '/'
 
-def runtest(wdir, problem):
+def runtest(wdir):
     """
     Copy the files for a problem into a working directory, try to build it and
     run the test, and report the result.
@@ -65,10 +65,9 @@ def runtest(wdir, problem):
 
     # Copy the files into the working directory
     try:
-      problem_config = json.load(open("{path}/{problem}/config".format(path=current_app.config['SRCDIR'], problem=problem)))
-      filelist = problem_config['files']
+      filelist = ["Makefile"]
       for filename in filelist:
-        safe_run(["cp", "{path}/{problem}/{filename}".format(path=current_app.config['SRCDIR'], problem=problem, filename=filename.strip()), wdir])
+        safe_run(["cp", "{path}/{filename}".format(path=current_app.config['SRCDIR'], filename=filename.strip()), wdir])
 
       # Update the docker image (this should be very rare)
       # TODO: this takes ~0.5 seconds even if there's no update; let's move this elsewhere
@@ -113,7 +112,6 @@ def run_netlist(wdir):
   synthesis_output = safe_run(command + ["make", "-f", wdir + "Makefile", "--directory", wdir, "--silent"] + current_app.config['MAKE_ARGS'] + ["netlist.json"], stderr = sp.STDOUT)
 
   # Run netlistsvg locally
-  netlistsvg_output = safe_run(["netlistsvg", wdir + "netlist.json", "-o", netlist_output, "--skin", current_app.config['SRCDIR'] + "/customskin.svg"], stderr = sp.STDOUT)
+  netlistsvg_output = safe_run(["netlistsvg", wdir + "netlist.json", "-o", netlist_output], stderr = sp.STDOUT)
 
   return synthesis_output.decode('utf-8') + '\n\n' + netlistsvg_output.decode('utf-8')
-

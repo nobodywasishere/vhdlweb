@@ -1,8 +1,0 @@
-{
-"files" : [
-  "Makefile",
-  "testbench.vhd"
-  ],
-"netlist": "yes"
-}
-

@@ -1,289 +1,49 @@
-/* To make footer stick to bottom */
+
+@import url('https://rsms.me/inter/inter.css');
 html {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
     min-height: 100%;
-    position: relative;
+}
+
+@supports (font-variation-settings: normal) {
+    html {
+        font-family: 'Inter var', sans-serif;
+    }
 }
 
 body {
-    padding: 0;
-    margin: 0;
-}
-
-#navbar-container {
-    height: auto;
-    width: 100%;
-    top: 0px;
-    left: 0px;
-    position: fixed;
-    background-color: #073642;
-    z-index: 10;
-}
-
-
-#navbar {
-    height: 70px;
-    width: 1000px;
-    position: relative;
-    top: 0px;
-    /* Leave left wherever page puts it */
-    z-index: 10;
-
-    font-size: 20px;
-    color: white;
-    font-family: open-sans, sans-serif;
-
-    padding: 10px 20px 16px 20px;
-
-    margin-left: auto;
-    margin-right: auto;
-}
-
-#navbar a:link, #navbar a:visited {
-    font-weight: lighter;
-    text-decoration: none;
-    color: white;
-}
-
-#navbar a:hover {
-    text-decoration: underline;
-}
-
-#footer-container {
-    height: auto;
-    width: 100%;
-    bottom: 0px;
-    left: 0px;
-    position: absolute;
-    background-color: #073642;
-    z-index: 10;
-}
-
-/* This should match the header */
-#footer {
-    width: 1000px;
-    color: white;
-    font-family: open-sans, sans-serif;
-
-    padding: 10px 20px 7px 20px;
-
-    margin-left: auto;
-    margin-right: auto;
-}
-
-#footer a {
-    color: white;
-}
-
-.header {
-    font-size: 30px;
-    font-weight: bold;
-}
-
-.login {
-    position: absolute;
-    right: 20px;
-}
-
-h1, h2 {
-    font-family: open-sans, sans-serif;
-    font-size: 24px;
-}
-
-.error {
-    color: #dc322f;
-}
-
-.inlineheading {
-    font-family: open-sans, sans-serif;
-    font-size: 24px; /* Match H2 */
-    font-weight: bold;
-    margin-right: 10px;
+    max-width: 1000px;
+    min-height: 100%;
+    margin: 0px auto 0px auto;
+    padding: 0px 5% 0px 5%;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
 
 #content {
-    max-width: 1000px;
-    height: auto;
-    padding-bottom: 100px;
-    margin: 120px 20px 20px 20px;
-    padding-left: 20px;
-    padding-right: 20px;
-    font-size: 18px;
-    font-family: crimson, serif;
+    min-height: 80%;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+
+#schematic {
+    display: block;
+    width: 100%;
     margin-left: auto;
     margin-right: auto;
 }
+
 #editor {
-    width: 1000px;
+    max-width: 100%;
     height: 400px;
     margin-top: 10px;
-}
-button {
-  font-family: open-sans, sans-serif;
-  font-size: 20px;
-  border: 1px solid black;
-  background-color: #fdf6e3;
-  padding: 8px 15px 8px 15px;
-  margin: 5px 5px 5px 0px;
-  min-width: 120px;
-  cursor: pointer;
-}
-input {
-  font-family: open-sans, sans-serif;
-  font-size: 20px;
-  border: 1px solid black;
-  padding: 8px 15px 8px 15px;
-}
-
-#buildlog {
-  font-size: 14px;
-  word-wrap: normal;
-}
-
-.checklist {
-  list-style: none;
-}
-
-.checklist li {
-  margin: 5px 0;
-  color: #C0C0C0;
-}
-
-.checklist li:before {
-  content: "\2713 ";
-  padding-right: 10px;
-}
-
-.checklist a {
-    color: black;
-    text-decoration: none;
-}
-
-.checklist a:hover {
-    color: #e77817;
-}
-
-li.complete{
-  color: #009000;
-}
-
-/* TODO: This relies a bit too much on pixel-perfect positioning... make it better. */
-.dropdown-container {
-  position: relative;
-  display: block;
-  height: 46px;
-}
-
-.dropdown-content {
-  display: none;
-  position: absolute;
-  right: 0px;
-  top: 46px;
-
-  background-color: #fdf6e3;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
-  text-align: right;
-}
-
-.dropdown-content a {
-  color: black;
-  padding: 5px 10px;
-  text-decoration: none;
-  display: block;
-  font-size: 14px;
-  font-family: open-sans, sans-serif;
-}
-
-.dropdown-content a:hover {
-  background-color: #eee8d5
-}
-
-/* Make the dropdown visible when the user hovers over it */
-.dropdown:hover .dropdown-content {
-  display: block;
-}
-
-#historybutton:hover {
-  background-color: #eee8d5;
-}
-
-#historybutton {
-  margin: 0px;
-  position: absolute;
-  right: 0px;
-}
-
-img#schematic {
-  max-width: 100%;
-}
-
-
-/* Style items for writing prompts */
-.truthtable td {
-  padding: 4px 10px 4px 10px;
-}
-
-.truthtable th {
-  padding: 4px 10px 4px 10px;
-  text-align: left;
-}
-
-.truthtable tr:nth-child(even) {
-  background-color: #f2f2f2;
 }
 
 .code {
   font-family: monospace;
 }
 
-/* Style items for reference and other static pages */
-.booktitle {
-  font-style: italic;
-}
-
-.booklist li {
-  margin: 15px 0;
-}
-
 pre {
     white-space: pre-wrap;
-}
-
-@media screen and (max-width: 1080px) {
-    #navbar, #footer, #content, #editor{
-        max-width: 90%;
-    }
-
-    .login {
-        right: 20px;
-    }
-
-    .ace_editor {
-        max-width: 100% !important;
-    }
-}
-
-/* for when a screen is really small */
-@media screen and (max-width: 500px) {
-    #navbar-container, #footer-container {
-        position: relative;
-    }
-
-    #navbar, #footer {
-        max-width: 90%;
-        /* padding: 10px 0 16px 0; */
-    }
-
-    #content {
-        margin-top: 20px;
-        min-height: 69vh;
-    }
-
-    #logo {
-        display: none;
-    }
-
-
-
 }

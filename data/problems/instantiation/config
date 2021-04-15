@@ -1,9 +1,0 @@
-{
-"files" : [
-  "Makefile",
-  "nand4.vhd",
-  "testbench.vhd"
-  ],
-"schematic": "no"
-}
-

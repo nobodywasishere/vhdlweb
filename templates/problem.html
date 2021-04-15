@@ -24,17 +24,6 @@ function blur() {
   elapsedTime += dt;
 }
 
-function rollback(submissionId) {
-      var xmlhttp = new XMLHttpRequest();
-      xmlhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            editor.setValue(this.responseText);
-          }
-      };
-      xmlhttp.open("GET", "/submission/{{problemId}}/" + submissionId, true);
-      xmlhttp.send();
-}
-
 function findDiffLine(str1, str2) {
     let line = 1;
     for (i = 0; i < str2.length; i++) {
@@ -49,7 +38,7 @@ function findDiffLine(str1, str2) {
 function compile(buttonId) {
   // Set the build text to "building"
   outputlog = document.getElementById("buildlog");
-  outputlog.innerHTML = "Building...";
+  outputlog.hidden = false;
   document.getElementById("schematic").src = "/static/images/schematic_loading.svg";
   document.getElementById("schematicblock").hidden = true;
 
@@ -83,32 +72,18 @@ function compile(buttonId) {
       xmlhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
               result = JSON.parse(this.responseText);
-              if(result.status == "buildfail"){
-                document.getElementById("buildlabel").innerHTML = "Build failed:";
-              } else if(result.status == "testfail"){
-                document.getElementById("buildlabel").innerHTML = "Test failed:";
-              } else {
-                document.getElementById("buildlabel").innerHTML = "Test passed!";
-              }
-
               document.getElementById("buildlog").innerHTML = "<pre>" + result.buildOutput + "</pre>";
               if (result.netlist) {
                 document.getElementById("schematic").src = result.netlist;
                 document.getElementById("schematicblock").hidden = false;
               }
-              rollbackLink = document.createElement("a");
-              rollbackLink.className = result.status;
-              rollbackLink.href = "#";
-              rollbackLink.onclick = function() { rollback(result.submissionId); }
-              rollbackLink.innerText = result.timestamp;
-              document.getElementById("rollback").prepend(rollbackLink);
           }
       };
 
       dt = Date.now() - startTime;
       elapsedTime += dt;
 
-      xmlhttp.open("POST", "/compile/{{problemId}}", true);
+      xmlhttp.open("POST", "/compile/", true);
       xmlhttp.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
       var blob = JSON.stringify({"code":code, "button":buttonId, "pagetime":elapsedTime/1000, "pastes":pasteContent});
       xmlhttp.send(blob);
@@ -125,54 +100,38 @@ function compile(buttonId) {
 {% endblock %}
 
 {% block content %}
-{{ prompt|markdown }}
-<br/>
-<div class="dropdown-container">
-<div class="dropdown">
-  <button id="historybutton">Rollback to previous</button>
-  <div id="rollback" class="dropdown-content">
-{% for s in submissions %}
-    <a href="#" onClick="rollback('{{s['id']}}')">{{s['time']}}
-{% if s['status'] == 'buildfail' %}
-&#10060;
-{% elif s['status'] == 'testfail' %}
-<span style="color:#268bd2">
-&#9654;
-</span>
-{% elif s['status'] == 'pass' %}
-&#9989;
-{% endif %}
-</a>
-{% endfor %}
-  </div>
+<p>Converts a VHDL entity into a block diagram using GHDL, Yosys, and netlistsvg. Top entity must be named top.</p>
+
+<br>
+
+<div id="editor">
 </div>
-</div>
-<br/>
-<div id="editor">{{ startercode }}</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js" type="text/javascript" charset="utf-8"></script>
 <script>
     var editor = ace.edit("editor");
-    editor.setTheme("ace/theme/solarized_light");
+    // editor.setTheme("ace/theme/xcode");
     editor.session.setMode("ace/mode/vhdl");
     document.getElementById("editor").style.fontSize='16px';
     editor.on("paste", addPaste);
 </script>
 
-<br/>
-<span class="inlineheading">Are you confident about this change?</span> (select one to recompile) <br/>
-<br/>
+<br>
+<br>
 
-<button id="b_confident" onClick="compile('confident')" style="color: white; background-color: #101010" title="Select 'Yes' if you're confident this change fixes the error and/or moves you toward the solution.">Yes</button>
-<button id="b_notconfident" onClick="compile('notconfident')" style="color: black; background-color: #e0e0e0" title="Select 'Not really' if you're unsure whether this change will work.">Not really</button>
+<span align="right">
+<button onClick="compile('confident')">Generate Block Diagram</button>
+</span>
 
-<div id="schematicblock" hidden="true">
-<h2>Logic diagram:</h2>
-<img id="schematic" onLoad="this.width=this.naturalWidth*=1.8;"></img>
-</div>
+<br>
+<br>
 
-<h2 id="buildlabel">Compiler/test output:</h2>
+<h3 id="buildlabel" hidden="true">Compiler output</h3>
 <span id="buildlog">
 </span>
+
+<div id="schematicblock" hidden="true">
+<img id="schematic"></img>
+</div>
 
 {% endblock %}
